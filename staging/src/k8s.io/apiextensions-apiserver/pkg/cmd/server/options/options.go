@@ -24,7 +24,7 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apiextensions-apiserver/pkg/apiserver"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -35,6 +35,7 @@ import (
 	"k8s.io/apiserver/pkg/util/proxy"
 	"k8s.io/apiserver/pkg/util/webhook"
 	corev1 "k8s.io/client-go/listers/core/v1"
+	serverstorage "k8s.io/apiserver/pkg/server/storage"
 )
 
 const defaultEtcdPathPrefix = "/registry/apiextensions.kubernetes.io"
@@ -111,8 +112,9 @@ func (o CustomResourceDefinitionsServerOptions) Config() (*apiserver.Config, err
 }
 
 // NewCRDRESTOptionsGetter create a RESTOptionsGetter for CustomResources.
-func NewCRDRESTOptionsGetter(etcdOptions genericoptions.EtcdOptions) genericregistry.RESTOptionsGetter {
+func NewCRDRESTOptionsGetter(storageFactory serverstorage.StorageFactory,etcdOptions genericoptions.EtcdOptions) genericregistry.RESTOptionsGetter {
 	ret := apiserver.CRDRESTOptionsGetter{
+		StorageFactory: storageFactory,
 		StorageConfig:           etcdOptions.StorageConfig,
 		StoragePrefix:           etcdOptions.StorageConfig.Prefix,
 		EnableWatchCache:        etcdOptions.EnableWatchCache,
